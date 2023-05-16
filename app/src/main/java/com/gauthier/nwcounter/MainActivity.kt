@@ -1,7 +1,11 @@
 package com.gauthier.nwcounter
 
+import android.content.Context
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
 import androidx.lifecycle.ViewModelProvider
 import com.gauthier.nwcounter.databinding.ActivityMainBinding
 
@@ -11,6 +15,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: CounterViewModel
     // On crée une instance de la classe auto-générée ActivityMainBinding qui contient les références aux vues du layout de l'activité
     private lateinit var binding: ActivityMainBinding
+
+    private lateinit var vibrator: Vibrator
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,11 +36,13 @@ class MainActivity : AppCompatActivity() {
             // On configure le bouton d'incrémentation pour appeler la méthode incrementCounter() du CounterViewModel lorsqu'il est cliqué
             incrementButton.setOnClickListener {
                 viewModel.incrementCounter()
+                vibrate(100) // Déclenche la vibration lors du clic sur le bouton d'incrémentation
             }
 
             // On configure le bouton de remise à zéro pour appeler la méthode resetCounter() du CounterViewModel lorsqu'il est appuyé longtemps
             resetButton.setOnLongClickListener {
                 viewModel.resetCounter()
+                vibrate(300)
                 true // on retourne true pour signaler qu'on a bien traité l'événement de long click
             }
         }
@@ -44,5 +52,16 @@ class MainActivity : AppCompatActivity() {
             // On met à jour le TextView avec la nouvelle valeur du compteur à chaque changement
             binding.counter.text = count.toString()
         }
+        vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+    }
+
+    // Méthode pour déclencher la vibration
+    private fun vibrate(time: Long) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(VibrationEffect.createOneShot(time, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            vibrator.vibrate(time)
+        }
     }
 }
+
